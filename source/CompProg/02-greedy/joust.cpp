@@ -11,11 +11,9 @@
 
 
 #define rep(a, b)   for(uint a = 0; a < (b); ++a)
-#define rep1(a, b)  for(uint a = 1; a < (b); ++a)
 #define all(a)      (a).begin(),(a).end()
 #define uint        uint32_t
 #define endl        '\n'
-#define cd(a)       static_cast<double>(a)
 
 using namespace std;
 using Graph = vector<vector<int>>;
@@ -25,6 +23,9 @@ int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
     cout.precision(10);
+
+    uint knights;
+    cin >> knights;
 
 
     return 0;
