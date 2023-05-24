@@ -31,7 +31,7 @@ int main() {
     auto leastChanges = cd(word.size()) / 2;
 
     auto n = word.size();
-    std::vector<std::vector<int>> dp(n, std::vector<int>(n, 0));
+    std::vector<std::vector<uint>> dp(n, std::vector<uint>(n, 0));
 
     for (int i = 0; i < n; ++i) {
         dp[i][i] = 0;

@@ -16,6 +16,7 @@
 #define uint        uint32_t
 #define endl        '\n'
 #define cd(a)       static_cast<double>(a)
+#define csize(a)     static_cast<size_t>(a)
 
 using namespace std;
 using Graph = vector<vector<int>>;

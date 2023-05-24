@@ -16,38 +16,36 @@
 #define uint        uint32_t
 #define endl        '\n'
 #define cd(a)       static_cast<double>(a)
+#define csize(a)     static_cast<size_t>(a)
 
 using namespace std;
 using Graph = vector<vector<int>>;
 using ll = long long;
 
-vector<ll> prefix(string word) {
+// Not used here, but could also be used instead of the prefix function.
+vector<ll> z(vector<ll> word) {
     const auto n = word.size();
-    auto P = vector<ll>(n, 0);
+    auto Z = vector<ll>(n, 0);
 
-    rep1(i, n) {
-        auto j = static_cast<size_t>(P[i-1]);
-        while (j > 0 && word[i] != word[j]) {
-            j = static_cast<size_t>(P[j - 1]);
+    auto l = ll{0};
+    auto r = ll{0};
+
+    Z[0] = n;
+    for (auto i = size_t{1}; i < n; ++i) {
+        if (i <= r) {
+            Z[i] = min(static_cast<ll>(r - i + 1), Z[static_cast<size_t>(i - l)]);
         }
-        if (word[i] == word[j]) {
-            j = j+1;
+        while (static_cast<size_t>(i + Z[i]) < n && word[static_cast<size_t>(Z[i])] == word[static_cast<size_t>(i + Z[i])]) {
+            Z[i] = Z[i] + 1;
         }
-        P[i] = static_cast<ll>(j);
+
+        if (i + Z[i] - 1 > r) {
+            l = i;
+            r = i + Z[i] - 1;
+        }
     }
 
-    return P;
-}
-
-// As in lecture
-bool contains(string word, string substring) {
-    const auto size = substring.size();
-    const auto P = prefix(substring.append("#").append(word));
-
-    for (const auto& num : P) {
-        if (static_cast<size_t>(num) == size) return true;
-    }
-    return false;
+    return Z;
 }
 
 int main() {
@@ -58,49 +56,34 @@ int main() {
     ll noBlocks, highestColorCode;
     cin >> noBlocks >> highestColorCode;
 
-    auto blocks = string("");
+    auto blocks = vector<ll>(noBlocks);
     rep (i, noBlocks) {
-        string temp;
-        cin >> temp;
-        if (stoi(temp) <= highestColorCode) blocks.append(temp);
+        cin >> blocks[i];
     }
 
-    auto originalBlocks = blocks;
-
     auto results = vector<ll>();
-    results.push_back(noBlocks);
-    
-    auto realPointer = static_cast<ll>(blocks.size() - 2);
-    auto mirror = blocks;
-    reverse(all(mirror));
-    auto mirrorPointer = 0;
+    results.push_back(blocks.size());
 
-    auto prefix = string("");
-    auto removedElements = string("");
-    for (auto currCount = noBlocks - 1; currCount >= noBlocks / 2; --currCount) {
-        removedElements += mirror[mirrorPointer];
-        ++mirrorPointer;
+    auto blocksCopy = blocks;
+    blocksCopy.push_back(highestColorCode + 1);
+    auto blocksReverse = blocks;
+    reverse(all(blocksReverse));
+    for (const auto& b : blocksReverse) {
+        blocksCopy.push_back(b);
+    }
 
-        if (prefix.size() > 0) prefix.erase(prefix.begin() + prefix.size() - 1);    
-        auto prefixSpace = removedElements.size() - prefix.size();
-        while (prefixSpace > 0 && realPointer >= 0) {
-            prefix = blocks[static_cast<size_t>(realPointer)] + prefix;
+    auto Z = z(blocksCopy);
 
-            --prefixSpace;
-            if (realPointer == 0) break;
-            --realPointer;
+    rep1 (i, (cd(blocks.size()) / 2) + 1) {
+        const auto reqIndex = blocksCopy.size() - (2 * i);
+        if (Z.at(reqIndex) >= i) {
+            const auto res = blocks.size() - i;
+            results.push_back(res);
         }
-
-        if (prefixSpace > 0) break; // Something went wrong.
-        if (prefix == removedElements) results.push_back(currCount);
     }
 
     sort(all(results));
-
-    rep (i, results.size()) {
-        std::cout << results[i] << " ";
-    }
-
+    rep (i, results.size()) std::cout << results[i] << " ";
     std::cout << endl;
 
     return 0;
