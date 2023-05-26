@@ -7,17 +7,17 @@
 using namespace std;
 using ll = long long;
 
-// Not used here, but could also be used instead of the prefix function.
-vector<ll> z(string word) {
+vector<ll> z(vector<ll> word) {
     const auto n = word.size();
     auto Z = vector<ll>(n, 0);
 
     auto l = ll{0};
     auto r = ll{0};
 
-    rep1(i, n) {
-        if (i < r) {
-            Z[i] = min(r - i + 1, Z[static_cast<size_t>(i - l)]);
+    Z[0] = n;
+    for (auto i = size_t{1}; i < n; ++i) {
+        if (i <= r) {
+            Z[i] = min(static_cast<ll>(r - i + 1), Z[static_cast<size_t>(i - l)]);
         }
         while (static_cast<size_t>(i + Z[i]) < n && word[static_cast<size_t>(Z[i])] == word[static_cast<size_t>(i + Z[i])]) {
             Z[i] = Z[i] + 1;
