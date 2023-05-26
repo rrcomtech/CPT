@@ -10,10 +10,9 @@
 #include <stack>
 
 
-#define rep(a, b)   for(uint a = 0; a < (b); ++a)
-#define rep1(a, b)  for(uint a = 1; a < (b); ++a)
+#define rep(a, b)   for(size_t a = 0; a < (b); ++a)
+#define rep1(a, b)  for(size_t a = 1; a < (b); ++a)
 #define all(a)      (a).begin(),(a).end()
-#define uint        uint32_t
 #define endl        '\n'
 #define cd(a)       static_cast<double>(a)
 #define csize(a)     static_cast<size_t>(a)
@@ -21,13 +20,14 @@
 using namespace std;
 using Graph = vector<vector<int>>;
 using ll = long long;
+using uint = uint32_t;
 
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
     cout.precision(10);
 
+    
 
     return 0;
 }
-
