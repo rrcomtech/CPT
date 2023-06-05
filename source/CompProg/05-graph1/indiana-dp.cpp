@@ -75,7 +75,7 @@ void solve() {
     auto q = queue<size_t>();
     auto starting_nodes = vector<size_t>();
     
-    for(size_t node = 1; node <= n; node++) {
+    for(auto node = size_t{1}; node <= n; node++) {
         if(in_degree[node] == 0) {
             starting_nodes.push_back(node);
             break;
@@ -89,49 +89,38 @@ void solve() {
 
     q.push(starting_nodes[0]);
 
-    auto dp = vector<vector<size_t>>(n+1, vector<size_t>{});
-
-    auto empty = vector<size_t>();
-    auto longest_path = &empty;
-
+    //auto dp = vector<pair<size_t, ll>>(n+1);
+    auto longest_path = vector<size_t>{starting_nodes[0]};
     auto counter = size_t{0};
 
     while(!q.empty()) {
-        cout << counter++ << endl;
-
         auto& node = q.front();
         q.pop();
 
-        if (graph[node].size() == 0 && dp[node].size() >= longest_path->size()) {
-            dp[node].push_back(node);
-            longest_path = &dp[node];
-        }
-
+        auto neighbor_found = false;
         for(const auto& neighbor : graph[node]) {
             in_degree[neighbor]--;
             if(in_degree[neighbor] == 0) {
-                q.push(neighbor);
-            }
-            if (dp[neighbor].size() < (dp[node].size() + 1)) {
-                auto v = dp[node];
-                v.push_back(node);
-                dp[neighbor] = v;
-            }
+                if (neighbor_found) {
+                    // More than one neighbor can be walked to next.
+                    cout << "Missing hints" << endl;
+                    return;
+                }
 
-            if (dp[neighbor].size() > longest_path->size()) {
-                longest_path = &dp[neighbor];
-            }
-            
+                neighbor_found = true;
+                q.push(neighbor);
+                longest_path.push_back(neighbor);
+            }            
         }
     }
 
-    if (longest_path->size() < n) {
+    if (longest_path.size() < n) {
         cout << "missing hints" << endl;
         return;
     }
 
-    rep(i, longest_path->size()) {
-        cout << longest_path->at(i) << " ";
+    rep(i, longest_path.size()) {
+        cout << longest_path[i] << " ";
     }
     cout << endl;
 }
