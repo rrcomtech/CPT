@@ -3,7 +3,7 @@
         {
             "label": "make",
             "type": "shell",
-            "command": "cd cmake-build && make -j4"
+            "command": "cd cmake-build-debug && ninja"
         },
         {
             "type": "cppbuild",

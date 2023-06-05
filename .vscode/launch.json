@@ -2,17 +2,30 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(lldb) vladimir",
+            "name": "(lldb) boxing",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/cmake-build/vladimir",
+            "program": "${workspaceFolder}/cmake-build-debug/boxing",
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": true,
             "MIMode": "lldb",
             "preLaunchTask": "make"
-        },        {
+        },
+        {
+            "name": "(lldb) indiana",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/cmake-build-debug/indiana",
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "lldb",
+            "preLaunchTask": "make"
+        },
+        {
             "name": "C/C++: clang++ Aktive Datei erstellen und debuggen",
             "type": "cppdbg",
             "request": "launch",

@@ -18,8 +18,8 @@
 #define csize(a)     static_cast<size_t>(a)
 
 using namespace std;
+using Graph = vector<vector<int>>;
 using ll = long long;
-using Graph = vector<vector<ll>>;
 using uint = uint32_t;
 
 int main() {
