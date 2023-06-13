@@ -9,6 +9,12 @@
 #include <set>
 #include <stack>
 
+using namespace std;
+
+using ll = long long;
+using ull = size_t;
+using Graph = vector<vector<pair<size_t, size_t>>>;
+using uint = uint32_t;
 
 #define rep(a, b)   for(size_t a = 0; a < (b); ++a)
 #define rep1(a, b)  for(size_t a = 1; a < (b); ++a)
@@ -18,9 +24,7 @@
 #define csize(a)     static_cast<size_t>(a)
 
 struct Edge {
-    size_t start;
-    size_t end;
-    size_t cost;
+    int src, dest, weight;
 };
 
 struct Node {
@@ -28,64 +32,93 @@ struct Node {
     size_t machine_cost;
 };
 
-using namespace std;
-using ll = long long;
-using Graph = vector<vector<pair<size_t, size_t>>>;
-using uint = uint32_t;
+// Structure to represent a disjoint set
+struct DisjointSet {
+    vector<int> parent, rank, costs;
+    
+    DisjointSet(int n, vector<int> c) {
+        parent = vector<int>(n);
+        rank = vector<int>(n, 0);
+        costs = c;
+        
+        // Initially, each node is a separate set
+        for (int i = 0; i < n; i++)
+            parent[i] = i;
+    }
+    
+    // Find the parent of a node
+    pair<int,int> find(int u) {
+        if (parent[u] != u) {
+            const auto& [ index, weight ] = find(parent[u]);
+            parent[u] = index;
+            costs[u] = weight;
+        }
+        return make_pair(parent[u], costs[u]);
+    }
+    
+    // Union of two sets
+    void merge(int u, int v) {
+        u = find(u).first;
+        v = find(v).first;
+        
+        // Take lower cost and add it to both.
+        auto min_cost = min(costs[u], costs[v]);
+        costs[u] = min_cost;
+        costs[v] = min_cost;
 
-void jarnik_prim(vector<vector<pair<size_t, size_t>>>& graph, size_t start, vector<bool>& visited, Graph& prevGraph) {
-    size_t V = graph.size();
+        // Attach smaller rank tree under the root of higher rank tree
+        if (rank[u] < rank[v]) {
+            parent[u] = v;
+        } else if (rank[u] > rank[v]) {
+            parent[v] = u;
+        } else {
+            parent[v] = u;
+            rank[u]++;
+        }
+    }
+};
 
-    priority_queue<
-        pair<size_t, size_t>,
-        vector<pair<size_t, size_t>>,
-        greater<pair<size_t, size_t>>> pq;
+// Comparator function for sorting edges by their weight
+bool compareEdges(const Edge& a, const Edge& b) {
+    return a.weight < b.weight;
+}
 
-    vector<size_t> weights(V, INT_MAX);
-    vector<size_t> parent(V);
-    vector<bool> inMST(V, false);
+// Function to find the MST using Kruskal's algorithm
+ull kruskalMST(vector<Edge>& edges, int n, vector<int>& icecream_cost) {
+    vector<Edge> result; // Stores the final MST
+    
+    // Sort edges in non-decreasing order of their weight
+    sort(edges.begin(), edges.end(), compareEdges);
+    DisjointSet ds(n, icecream_cost);
+    
+    // Process each edge in sorted order
+    for (const auto& edge : edges) {
+        const auto [ srcParent, costSrc ] = ds.find(edge.src);
+        const auto [ destParent, costDest ] = ds.find(edge.dest);
 
-    pq.push(make_pair(start, 0));
-    weights[start] = INT_MAX;
-    visited[start] = true;
-
-    while (!pq.empty()) {
-        auto curr = pq.top().first;
-        pq.pop();
-
-        inMST[curr] = true;
-
-        for (auto& neighbor : graph[curr]) {
-            auto node = neighbor.first;
-            auto weight = neighbor.second;
-
-            if (weight < weights[node]) {
-                weights[node] = weight;
-                parent[node] = curr;
-                if (!inMST[node]) {
-                    pq.push(make_pair(node, weights[node]));
-                }
-            }
+        // If inserting the edge costs less, than keeping the larger of both costs, do it!
+        // ... and inserting does not form a cycle.
+        if (srcParent != destParent && edge.weight < max(costSrc, costDest)) {
+            result.push_back(edge);
+            ds.merge(srcParent, destParent);
         }
     }
 
-    rep1 (i, V) {
-        if (inMST[i]) {
-            auto found = false;
-            for (const auto& neighbor : prevGraph[i]) {
-                if (neighbor.first == parent[i]) {
-                    found = true;
-                    break;
-                }
-            } 
-
-            if (!found) {
-                visited[i] = true;
-                prevGraph[i].push_back(make_pair(parent[i], weights[i]));
-                prevGraph[parent[i]].push_back(make_pair(i, weights[i]));
-            }
-        }
+    auto weight = ull{0};
+    auto visited = vector<bool>(n, false);
+    for (const auto& edge : result) {
+        weight += edge.weight;
     }
+
+    rep (i, n) {
+        const auto [ parentIndex, parentWeight ] = ds.find(i);
+        if (!visited[parentIndex]) {
+            visited[parentIndex] = true;
+            weight += parentWeight;
+        } 
+    }
+    
+    return weight;
 }
 
 int main() {
@@ -95,37 +128,27 @@ int main() {
 
     size_t nodes, edges;
     cin >> nodes >> edges;
-    auto graph = Graph(nodes);
+    auto graph = vector<Edge>();
 
-    auto icecream_costs = vector<Node>(nodes);
+    auto icecream_costs = vector<int>(nodes);
     rep (i, icecream_costs.size()) {
-        size_t cost; 
-        cin >> cost;
-
-        Node n;
-        n.index = i;
-        n.machine_cost = cost;
-        icecream_costs[i] = n;
+        cin >> icecream_costs[i];
     }
 
     rep (i, edges) {
-        size_t start, end, weight;
+        int start, end, weight;
         cin >> start >> end >> weight;
 
-        graph[start].push_back(make_pair(end, weight));
-        graph[end].push_back(make_pair(start, weight)); 
+        auto e = Edge{start, end, weight};
+        auto e2 = Edge{end, start, weight};
+
+        graph.push_back(e);
+        graph.push_back(e2);
     }
 
-    auto visited = vector<bool>(nodes, false);
-    auto mst = Graph(nodes);
-    jarnik_prim(graph, 0, visited, mst);
+    const auto cost = kruskalMST(graph, nodes, icecream_costs);
 
-    rep (node, nodes) {
-        if (!visited[node]) jarnik_prim(graph, node, visited, mst);
-    }
-
-    auto built_freezers = vector<size_t>(nodes, 0);
-    
+    cout << cost << endl;
 
     return 0;
 }

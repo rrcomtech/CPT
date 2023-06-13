@@ -19,6 +19,7 @@
 
 using namespace std;
 using ll = long long;
+using ull = size_t;
 using Graph = vector<vector<ll>>;
 using uint = uint32_t;
 
