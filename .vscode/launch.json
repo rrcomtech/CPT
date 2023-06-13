@@ -2,22 +2,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(lldb) boxing",
+            "name": "(lldb) icecream",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/cmake-build-debug/boxing",
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": true,
-            "MIMode": "lldb",
-            "preLaunchTask": "make"
-        },
-        {
-            "name": "(lldb) indiana",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/cmake-build-debug/indiana",
+            "program": "${workspaceFolder}/cmake-build-debug/icecream",
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
