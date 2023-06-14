@@ -2,10 +2,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(lldb) icecream",
+            "name": "(lldb) battery",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/cmake-build-debug/icecream",
+            "program": "${workspaceFolder}/cmake-build-debug/battery",
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
