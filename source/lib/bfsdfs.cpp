@@ -8,7 +8,6 @@ using namespace std;
 using ll = long long;
 
 bool bfs(vector<vector<ll>> adjacent_matrix) {
-
     auto startNode  = size_t{0};
     auto seen       = vector<bool>(adjacent_matrix.size(), false);
     seen[startNode] = true;
@@ -33,6 +32,7 @@ bool bfs(vector<vector<ll>> adjacent_matrix) {
     return seen_elements == adjacent_matrix.size();
 }
 
+// Returns number of visted elements.
 size_t dfs(vector<vector<ll>>& graph, ll start) {
     auto visited = vector<bool>(graph.size(), false);
     auto visited_elements = size_t{1};

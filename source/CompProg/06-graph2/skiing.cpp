@@ -42,6 +42,7 @@ void solve() {
     auto visited = vector<bool>(graph.size(), false);
     auto costs = vector<ull>(nodes, 0);
 
+    // Insert all edges with no incoming edges (starting points). 
     auto q = queue<ull>();
     rep (i, degrees.size()) {
         if (degrees[i] == 0) {
@@ -49,6 +50,7 @@ void solve() {
         }
     }
 
+    
     auto m = ull{0};
     while (!q.empty()) {
         auto degree0El = q.front();
