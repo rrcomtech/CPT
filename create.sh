@@ -5,7 +5,6 @@ if [[ $# -eq 0 ]] ; then
     exit 0
 fi
 
-cd `dirname $0`
-mkdir $(dirname $1)
+mkdir source/$(dirname $2)
 cp .template.cpp source/$2.cpp
 echo "add_executable($1 $2.cpp)" >> source/CMakeLists.txt

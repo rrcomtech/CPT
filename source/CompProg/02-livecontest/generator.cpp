@@ -23,12 +23,30 @@ using ull = size_t;
 using Graph = vector<vector<ll>>;
 using uint = uint32_t;
 
+void solve() {
+  ull border, sum;
+  std::cin >> border >> sum;
+
+  auto included = vector<bool>(sum, true);
+
+  for (auto num = 1; num < border; ++num) {
+    if (!included[num]) continue;
+
+    auto s = 0;
+    for (auto num2 = 1; num < border; ++num) {
+      if (!included[num2]) continue;
+    }
+  }
+}
+
 int main() {
-  ios::sync_with_stdio(false);
-  cin.tie(nullptr);
-  cout.precision(10);
+    ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+    std::cout.precision(10);
 
-  
+    ull cases;
+    std::cin >> cases;
+    rep(i,cases) solve()
 
-  return 0;
+    return 0;
 }
