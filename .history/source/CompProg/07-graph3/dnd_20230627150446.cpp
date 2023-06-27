@@ -58,7 +58,7 @@ int main() {
   cin >> nodes;
 
   auto graph = Graph(nodes + 1);
-  auto cache = vector<vector<ull>>(nodes + 1);
+  auto cache = vector<unordered_map<ull,ull>>(nodes + 1);
   auto processed = vector<bool>(nodes + 1, false);
 
   {

@@ -24,7 +24,7 @@ using ull = size_t;
 using Graph = vector<vector<pair<ull,ull>>>;
 using uint = uint32_t;
 
-vector<ull> solve(Graph& graph, ull start) {
+unordered_map<ull,ull> solve(Graph& graph, ull start) {
   auto dist = vector<ull>(graph.size(), SIZE_MAX);
   dist[start] = ull{0};
   auto q = priority_queue<pair<ull,ull>>();
@@ -58,7 +58,7 @@ int main() {
   cin >> nodes;
 
   auto graph = Graph(nodes + 1);
-  auto cache = vector<vector<ull>>(nodes + 1);
+  auto cache = vector<unordered_map<ull,ull>>(nodes + 1);
   auto processed = vector<bool>(nodes + 1, false);
 
   {

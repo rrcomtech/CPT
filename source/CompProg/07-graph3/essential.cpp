@@ -43,10 +43,12 @@ int main() {
     ull s, t, l;
     cin >> s >> t >> l;
 
-    Street st{i+1, s, t, l};
+    Street st1{i+1, s, t, l};
+    Street st2{i+1, t, s, l};
 
-    graph[s].push_back(st);
-    graph[t].push_back(st);
+
+    graph[s].push_back(st1);
+    graph[t].push_back(st2);
   }
 
   auto q = queue<ull>();
@@ -68,11 +70,11 @@ int main() {
       const auto& length = street.length;
 
       if (costs[node] + length == costs[dest]) {
-        predecessor[dest].push_back(Street{street.id, node});
+        predecessor[dest].push_back(Street{street.id, node, 0, 0});
       } else if (costs[node] + length < costs[dest]) {
         costs[dest] = costs[node] + length;
         predecessor[dest].clear();
-        predecessor[dest].push_back(Street{street.id, node});
+        predecessor[dest].push_back(Street{street.id, node, 0, 0});
         q.emplace(dest);
       }
     }

@@ -24,8 +24,11 @@ using ull = size_t;
 using Graph = vector<vector<pair<ull,ull>>>;
 using uint = uint32_t;
 
-vector<ull> solve(Graph& graph, ull start) {
-  auto dist = vector<ull>(graph.size(), SIZE_MAX);
+unordered_map<ull,ull> solve(Graph& graph, ull start, ull end) {
+  auto dist = unordered_map<ull,ull>();
+  for (auto i = ull{0}; i < graph.size(); ++i) {
+    dist[i] = SIZE_MAX;
+  }
   dist[start] = ull{0};
   auto q = priority_queue<pair<ull,ull>>();
   q.push({0,start});
@@ -58,7 +61,7 @@ int main() {
   cin >> nodes;
 
   auto graph = Graph(nodes + 1);
-  auto cache = vector<vector<ull>>(nodes + 1);
+  auto cache = vector<unordered_map<ull,ull>>(nodes + 1);
   auto processed = vector<bool>(nodes + 1, false);
 
   {
@@ -85,20 +88,10 @@ int main() {
   ull queries;
   cin >> queries;
 
-  rep1(node, graph.size()) {
-    cache[node] = solve(graph, node);
-  }
-
   rep(_, queries) {
     ull start, end;
     cin >> start >> end;
-    const auto cost = cache[start][end];
-
-    if (cost == SIZE_MAX) {
-      cout << "BRIBE DM WITH FOOD" << endl;
-    } else {
-      cout << cost << endl;
-    }
+    solve(graph, start, end, processed, cache);
   }
 
   return 0;

@@ -24,8 +24,11 @@ using ull = size_t;
 using Graph = vector<vector<pair<ull,ull>>>;
 using uint = uint32_t;
 
-vector<ull> solve(Graph& graph, ull start) {
-  auto dist = vector<ull>(graph.size(), SIZE_MAX);
+void solve(Graph graph, ull start, ull end) {
+  auto dist = unordered_map<ull,ull>();
+  for (auto i = ull{0}; i < graph.size(); ++i) {
+    dist[i] = SIZE_MAX;
+  }
   dist[start] = ull{0};
   auto q = priority_queue<pair<ull,ull>>();
   q.push({0,start});
@@ -41,9 +44,15 @@ vector<ull> solve(Graph& graph, ull start) {
     for (auto& [ dest, length ] : graph[f]) {
       if (dist[f] + length < dist[dest]) {
         dist[dest] = dist[f] + length;
-        q.push({dist[dest], dest});
+        q.push({(-1) * dist[dest], dest});
       }
     }
+  }
+
+  if (dist[end] == SIZE_MAX) {
+    cout << "BRIBE DM WITH FOOD" << endl;
+  } else {
+    cout << dist[end] << endl;
   }
 
   return dist;
@@ -57,48 +66,32 @@ int main() {
   ull nodes,edges;
   cin >> nodes;
 
-  auto graph = Graph(nodes + 1);
-  auto cache = vector<vector<ull>>(nodes + 1);
-  auto processed = vector<bool>(nodes + 1, false);
+  auto proficiency = vector<pair<ll,ll>>(nodes+1);
+  rep1(i, nodes+1) {
+    ll s1,s2;
+    cin >> s1 >> s2;
+    proficiency[i] = make_pair(s1,s2);
+  }
 
-  {
-    auto proficiency = vector<pair<ll,ll>>(nodes+1);
-    rep1(i, nodes+1) {
-      ll s1,s2;
-      cin >> s1 >> s2;
-      proficiency[i] = make_pair(s1,s2);
-    }
-
-    cin >> edges;
-    
-    rep(_, edges) {
-      ull s, d;
-      cin >> s >> d;
-      const auto p1 = proficiency[s];
-      const auto p2 = proficiency[d];
-      const auto cost = static_cast<ull>(pow((p1.first - p2.first), 2) + pow((p1.second - p2.second), 2));
-      graph[s].push_back(make_pair(d, cost));
-      graph[d].push_back(make_pair(s, cost));
-    }
+  cin >> edges;
+≈
+  
+  rep(_, edges) {
+    ull s, d;
+    cin >> s >> d;
+    const auto p1 = proficiency[s];
+    const auto p2 = proficiency[d];
+    const auto cost = static_cast<ull>(pow((p1.first - p2.first), 2) + pow((p1.second - p2.second), 2));
+    graph[s].push_back(make_pair(d, cost));
+    graph[d].push_back(make_pair(s, cost));
   }
 
   ull queries;
   cin >> queries;
-
-  rep1(node, graph.size()) {
-    cache[node] = solve(graph, node);
-  }
-
   rep(_, queries) {
     ull start, end;
     cin >> start >> end;
-    const auto cost = cache[start][end];
-
-    if (cost == SIZE_MAX) {
-      cout << "BRIBE DM WITH FOOD" << endl;
-    } else {
-      cout << cost << endl;
-    }
+    solve(graph, start, end);
   }
 
   return 0;
