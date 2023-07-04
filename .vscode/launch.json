@@ -2,10 +2,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(lldb) fallout2",
+            "name": "(lldb) trading",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/cmake-build-debug/fallout2",
+            "program": "${workspaceFolder}/cmake-build-debug/trading",
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

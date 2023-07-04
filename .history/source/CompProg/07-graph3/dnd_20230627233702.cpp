@@ -24,9 +24,13 @@ using ull = size_t;
 using Graph = vector<vector<pair<ull,ull>>>;
 using uint = uint32_t;
 
+bool pairComp(pair<ull,ull> a, pair<ull,ull> b) {
+  return a.first < b.first;
+}
+
 vector<ull> solve(Graph& graph, ull start) {
   const auto compPair = [](pair<ull,ull> a, pair<ull,ull> b) {
-      return a.first > b.first;
+      return a.second > b.second;
   };
 
   auto dist = vector<ull>(graph.size(), SIZE_MAX);
@@ -34,7 +38,7 @@ vector<ull> solve(Graph& graph, ull start) {
   auto q = priority_queue<
     pair<ull,ull>, 
     vector<pair<ull,ull>>, 
-    decltype(compPair)>(compPair);
+    decltype(compPair))>(pairComp);
   q.push({0,start});
 
   auto processed = vector<bool>(graph.size(), false);
@@ -42,12 +46,13 @@ vector<ull> solve(Graph& graph, ull start) {
     const auto f = q.top().second;
     q.pop();
 
+    if (processed[f]) continue;
     processed[f] = true;
 
     for (auto& [ dest, length ] : graph[f]) {
       if (dist[f] + length < dist[dest]) {
         dist[dest] = dist[f] + length;
-        if (!processed[dest]) q.push({dist[dest], dest});
+        q.push({dist[dest], dest});
       }
     }
   }

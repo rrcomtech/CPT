@@ -26,7 +26,7 @@ using uint = uint32_t;
 
 vector<ull> solve(Graph& graph, ull start) {
   const auto compPair = [](pair<ull,ull> a, pair<ull,ull> b) {
-      return a.first > b.first;
+      return a.first < b.first;
   };
 
   auto dist = vector<ull>(graph.size(), SIZE_MAX);
@@ -42,6 +42,7 @@ vector<ull> solve(Graph& graph, ull start) {
     const auto f = q.top().second;
     q.pop();
 
+    if (processed[f]) continue;
     processed[f] = true;
 
     for (auto& [ dest, length ] : graph[f]) {
