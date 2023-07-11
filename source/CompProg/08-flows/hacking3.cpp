@@ -18,6 +18,7 @@
 #define cd(a)       static_cast<double>(a)
 #define csize(a)     static_cast<size_t>(a)
 
+using namespace std;
 using ull = size_t;
 struct Edge {
   ull start;
@@ -25,97 +26,93 @@ struct Edge {
   ull capacity = 0;
   ull flow = 0;
   ull id;
+  pair<ull,ull> reverseEdge; // Location of reverse Edge in graph.
+  bool isReverse;
 };
 
-using namespace std;
 using ll = long long;
 using Graph = vector<vector<Edge>>;
 using uint = uint32_t;
 
-void bfs(Graph& graph, unordered_set<ull>& res) {
+void bfs2(Graph& graph, vector<bool>& seen) {
   auto q = queue<ull>();
-  auto visited = vector<bool>(graph.size(), false);
   q.push(1);
 
   while (!q.empty()) {
     auto f = q.front();
     q.pop();
-
-    visited[f] = true;
+    seen[f] = true;
 
     for (const auto& n : graph[f]) {
-      if (n.capacity == 0) continue;
-
-      if (n.capacity - n.flow == 0) {
-        res.insert(n.id);
-        continue;
-      }
-
-      if (!visited[n.end]) q.push(n.end);
+      if (n.capacity - n.flow == 0) continue;
+      if (!seen[n.end]) q.push(n.end);
     }
   }
 }
 
-ull dfs(Graph& graph) {
-  auto s = stack<ull>();
-  s.push(1);
-  auto seen = vector<bool>(graph.size(), false);
-  auto pred = vector<Edge*>(graph.size());
+ull bfs(Graph& graph) {
+  auto q = queue<ull>();
+  auto pred = vector<Edge*>(graph.size(), nullptr);
 
-  while (!s.empty()) {
-    const auto f = s.top();
-    s.pop();
+  q.push(1);
 
-    for (auto ind = size_t{0}; ind < graph[f].size(); ++ind) {
-      auto edge = graph[f][ind];
+  while (!q.empty()) {
+    auto u = q.front();
+    q.pop();
 
-      if (edge.capacity - edge.flow == 0 || seen[edge.end]) continue;
+    if (u == graph.size() - 1) break;
 
-      pred[edge.end] = &(graph[f][ind]);
-      if (edge.end == graph.size() - 1) {
-        auto minCapacity = SIZE_MAX;
-        auto l = edge.end;
-
-        // Find min flow capacity.
-        while (l != 1) {
-          minCapacity = min(minCapacity, pred[l]->capacity - pred[l]->flow);
-          l = pred[l]->start;
-        }
-
-        // Increase all flows on this path.
-        l = edge.end;
-        while (l != 1) {
-          pred[l]->flow += minCapacity;
-          l = pred[l]->start;
-        }
-
-        return minCapacity;
+    for (auto& edge : graph[u]) {
+      if (pred[edge.end] == nullptr && edge.end != 1 && edge.capacity > edge.flow) {
+        pred[edge.end] = &edge;
+        q.push(edge.end);
       }
-      seen[f] = true;
-      s.push(edge.end);
     }
   }
-  return 0;
+
+  auto flow = ull{0};
+  if (pred[graph.size() - 1] != nullptr) {
+    // Augmenting path found
+    flow = SIZE_MAX;
+
+    for (auto edge = pred[graph.size() - 1]; edge != nullptr; edge = pred[edge->start]) {
+      flow = min(flow, edge->capacity - edge->flow);
+    }
+
+    for (auto edge = pred[graph.size() - 1]; edge != nullptr; edge = pred[edge->start]) {
+      edge->flow = edge->flow + flow;
+      auto& revEdge = graph[edge->reverseEdge.first][edge->reverseEdge.second];
+      revEdge.flow = revEdge.flow - flow;
+    }
+  }
+
+  return flow;
 }
 
-void fordfulkerson(Graph& graph) {
-  auto minCap = dfs(graph);
+void fordfulkerson(Graph& graph, vector<ull>& degrees) {
+  auto res = vector<ull>();
+  auto minCap = bfs(graph);
   auto totalFlow = ull{0};
 
   while (minCap > 0) {
     totalFlow += minCap;
-    minCap = dfs(graph);
+    minCap = bfs(graph);
   }
 
-  // Do bfs one last time to see, which nodes can still be reached.
-  auto res = unordered_set<ull>();
-  bfs(graph, res);
+  auto seen = vector<bool>(graph.size(), false);
+  bfs2(graph, seen);
 
-  cout << res.size() << " " << totalFlow << endl;
-  for (const auto& r : res) {
-    cout << r << " ";
+  auto results = vector<ull>();
+  for (const auto& edges : graph) {
+    for (const auto& e : edges) {
+      if (!e.isReverse && e.capacity - e.flow == 0 && seen[e.start] && !seen[e.end]) {
+        results.push_back(e.id);
+      }
+    }
   }
-  cout << endl;
+
+  cout << results.size() << " " << totalFlow << endl;
+  for (const auto& r : results) cout << r << " ";
 }
 
 int main() {
@@ -126,14 +123,22 @@ int main() {
   ull n,m;
   cin >> n >> m;
   auto graph = Graph(n+1);
+  auto degrees = vector<ull>(graph.size(), 0);
+
+  //auto edgesPresent = vector<vector<pair<ull,ull>>>(n+1, vector<pair<ull,ull>>(false, {0,0}));
 
   rep (i,m) {
     ull start, dest, capacity;
     cin >> start >> dest >> capacity;
 
-    graph[start].push_back(Edge{start, dest, capacity, 0, i+1});
+    auto reverseEdge = Edge{dest, start, capacity, capacity, i+1, {start,graph[start].size()}, true};
+    auto e = Edge{start, dest, capacity, 0, i+1, {dest,graph[dest].size()}, false};
+
+    graph[start].push_back(e);
+    graph[dest].push_back(reverseEdge);
+    degrees[dest]++;
   }
 
-  fordfulkerson(graph);
+  fordfulkerson(graph, degrees);
   return 0;
 }
