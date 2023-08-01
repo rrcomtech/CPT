@@ -2,16 +2,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(lldb) trading",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/cmake-build-debug/trading",
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": true,
-            "MIMode": "lldb",
-            "preLaunchTask": "make"
+          "name": "cake",
+          "type": "cppdbg",
+          "request": "launch",
+          "program": "${workspaceFolder}/cmake-build-debug/cake",
+          "cwd": "${workspaceFolder}",
+          "preLaunchTask": "make"
         },
         {
             "name": "C/C++: clang++ Aktive Datei erstellen und debuggen",

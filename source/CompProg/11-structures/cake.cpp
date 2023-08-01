@@ -23,55 +23,106 @@ using ull = size_t;
 using Graph = vector<vector<ll>>;
 using uint = uint32_t;
 
-ull aggregate (vector<ull>& patterns, ull sender, ull receiver) {
-  if (sender == receiver) return ull{0};
-
-  auto number = patterns[sender];
-  auto current = sender;
-  auto next = (current + 1) % patterns.size();
-  while (next != receiver) {
-    number = number ^ patterns[next];
-    next = (next + 1) % patterns.size();
-  }
-
-  return number;
+ull gcd(ull a, ull b){
+  return !a ? b : gcd(b % a, a);
 }
 
-struct SegmentTree {
-  ull _upper_bound;
-  ull _lower_bound;
-  ull _aggregate_value;
+ull aggregate (const vector<ull>& weights, ull start, ull end) {
+  auto next = (start + 1) % weights.size();
+  auto g = gcd(weights[start], weights[next]);
 
-  SegmentTree* _left = nullptr;
-  SegmentTree* _right = nullptr;
+  while (g != 1 && next != end) {
+    next = (next + 1) % weights.size();
+    g = gcd(g, weights[next]);
+  }
 
-  explicit SegmentTree(ull lower_bound, ull upper_bound, function<ull(ull, ull)> agg)
-          : _upper_bound(upper_bound), _lower_bound(lower_bound)
-  {
-    _aggregate_value = agg(lower_bound, upper_bound);
+  return g;
+}
 
-    const auto middle = (upper_bound + lower_bound) / 2;
 
-    if (lower_bound != upper_bound) {
-      _left = new SegmentTree(lower_bound, middle, agg);
-      _right = new SegmentTree(middle + 1, upper_bound, agg);
+class SegmentTree {
+  private:
+    ull n;
+    vector<ull> tree;
+    vector<ull> weights;
+
+  public:
+    SegmentTree(const vector<ull>& arr) {
+        n = arr.size();
+        weights = arr;
+        tree.resize(4 * n);
+        build(arr, 1, 0, n - 1);
     }
-  }
 
-  ~SegmentTree() {
-    free(_left);
-    free(_right);
-  }
+    // Build the Segment Tree
+    void build(const vector<ull>& arr, ull node, ull start, ull end) {
+        if (start == end) {
+            tree[node] = arr[start];
+            return;
+        }
 
-  ull point_update(ull index, ull subtraction) {
+        auto mid = (start + end) / 2;
+        auto left = 2 * node;
+        auto right = 2 * node + 1;
 
-  }
+        build(arr, left, start, mid);
+        build(arr, right, mid + 1, end);
+        tree[node] = gcd(tree[left], tree[right]);
+    }
 
-  ull range_query(ull query_lower, ull query_upper) {
+    void update(ull point, const vector<ull>& arr) {
+        update(1, 0, n - 1, point, arr);
+    }
 
-  }
+    void update(ull node, ull start, ull end, ull point, const vector<ull>& arr) {
+        if (start == end) {
+            tree[node] = arr[point];
+            return;
+        }
+
+        auto mid = (start + end) / 2;
+        auto left_node = 2 * node;
+        auto right_node = 2 * node + 1;
+
+        if (point <= mid) {
+          update(left_node, start, mid, point, arr);
+        } else {
+          update(right_node, mid + 1, end, point, arr);
+        }
+
+        tree[node] = gcd(tree[left_node], tree[right_node]);
+    }
+
+    // Query the minimum value in the range [left, right]
+    ull query(ull left, ull right) {
+        return query(1, 0, n - 1, left, right);
+    }
+
+    ull query(ull node, ull start, ull end, ull qleft, ull qright) {
+        if (start == qleft && end == qright)
+            return tree[node];
+
+        if (start > qright || end < qleft)
+            return 0;
+
+        auto mid = (start + end) / 2;
+
+        if (qleft > mid) {
+            const auto r = query(2 * node + 1, mid + 1, end, qleft, qright);
+            return r;
+        }
+
+        if (qright <= mid) {
+            const auto l = query(2 * node, start, mid, qleft, qright);
+            return l;
+        }
+
+        const auto l = query(2 * node, start, mid, qleft, mid);
+        const auto r = query(2 * node + 1, mid + 1, end, mid + 1, qright);
+
+        return gcd(l, r);
+    }
 };
-
 int main() {
   ios::sync_with_stdio(false);
   cin.tie(nullptr);
@@ -85,11 +136,7 @@ int main() {
     cin >> pieces[i];
   }
 
-  auto gcd = [&pieces](ull l, ull r) {
-    return ull{0};
-  };
-
-  auto tree = SegmentTree(1, n, gcd);
+  auto tree = SegmentTree(pieces);
 
   rep (_, q) {
     string type;
@@ -98,17 +145,17 @@ int main() {
     if (type == "?") {
       // Range query
       ull l, r;
-      cin >> l >> r;
+      cin >> l >> r; l--; r--;
 
-      const auto res = tree.range_query(l, r);
+      const auto res = tree.query(l, r);
       cout << res << endl;
-
     } else {
+      // Point update
       string name;
       ull i,x;
-      cin >> name >> i >> x;
-
-
+      cin >> name >> i >> x; i--;
+      pieces[i] -= x;
+      tree.update(i, pieces);
     }
   }
 
